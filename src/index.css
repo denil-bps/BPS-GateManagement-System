@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+:root {
+  --navy-deep: #012758;
+  --navy-hover: #073a7d;
+  --navy-ink: #173a5f;
+  --golden-amber: #fda31b;
+  --campus-green: #116e63;
+  --campus-green-bg: #e7f5f1;
+  --warning-amber: #9d6500;
+  --warning-amber-bg: #fff3d9;
+  --alert-rose: #ae4439;
+  --alert-rose-bg: #fff0ee;
+  --desk-blue: #19558a;
+  --desk-blue-bg: #e8f1fa;
+  --page-canvas: #f5f9fc;
+  --surface-card: #ffffff;
+  --sidebar-surface: #f5f9fc;
+  --border-divider: #d5e0eb;
+  --border-subtle: #e3ebf2;
+  --text-slate: #315172;
+  --text-muted: #688099;
+}
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f5f9fc;
+    color: #173a5f;
+    min-height: 100vh;
+  }
+  
+  .font-crest {
+    font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+  }
+
+  .font-mono-numbers {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom utility colors */
+.bg-navy-deep { background-color: #012758; }
+.bg-navy-hover { background-color: #073a7d; }
+.bg-navy-ink { background-color: #173a5f; }
+.bg-golden-amber { background-color: #fda31b; }
+.bg-page-canvas { background-color: #f5f9fc; }
+.bg-desk-soft { background-color: #e8f1fa; }
+.bg-green-soft { background-color: #e7f5f1; }
+.bg-amber-soft { background-color: #fff3d9; }
+.bg-rose-soft { background-color: #fff0ee; }
+
+.text-navy-deep { color: #012758; }
+.text-navy-ink { color: #173a5f; }
+.text-golden-amber { color: #fda31b; }
+.text-campus-green { color: #116e63; }
+.text-warning-amber { color: #9d6500; }
+.text-alert-rose { color: #ae4439; }
+.text-desk-blue { color: #19558a; }
+.text-slate-body { color: #315172; }
+.text-muted-meta { color: #688099; }
+
+.border-navy-deep { border-color: #012758; }
+.border-divider { border-color: #d5e0eb; }
+.border-subtle { border-color: #e3ebf2; }
+.border-golden-amber { border-color: #fda31b; }
+.border-campus-green { border-color: #116e63; }
+.border-warning-amber { border-color: #9d6500; }
+.border-alert-rose { border-color: #ae4439; }
+.border-desk-blue { border-color: #19558a; }
+
+/* Status Badges */
+.badge-on-campus {
+  background-color: #e7f5f1;
+  color: #116e63;
+  border: 1px solid #116e63;
+}
+
+.badge-outside {
+  background-color: #fff3d9;
+  color: #9d6500;
+  border: 1px solid #9d6500;
+}
+
+.badge-overdue {
+  background-color: #fff0ee;
+  color: #ae4439;
+  border: 1px solid #ae4439;
+}
+
+.badge-desk-blue {
+  background-color: #e8f1fa;
+  color: #19558a;
+  border: 1px solid #19558a;
+}
+
+/* Button Classes */
+.btn-primary-bps {
+  background-color: #012758;
+  color: #ffffff;
+  transition: all 0.15s ease-in-out;
+}
+.btn-primary-bps:hover:not(:disabled) {
+  background-color: #073a7d;
+  box-shadow: 0 4px 14px rgba(1, 39, 88, 0.22);
+}
+
+.btn-secondary-bps {
+  background-color: #19558a;
+  color: #ffffff;
+  transition: all 0.15s ease-in-out;
+}
+.btn-secondary-bps:hover:not(:disabled) {
+  background-color: #073a7d;
+}
+
+.btn-amber-bps {
+  background-color: #fda31b;
+  color: #012758;
+  font-weight: 700;
+  transition: all 0.15s ease-in-out;
+}
+.btn-amber-bps:hover:not(:disabled) {
+  background-color: #e59214;
+  box-shadow: 0 4px 12px rgba(253, 163, 27, 0.28);
+}
+
+.btn-outline-bps {
+  border: 1.5px solid #d5e0eb;
+  background-color: #ffffff;
+  color: #173a5f;
+  transition: all 0.15s ease-in-out;
+}
+.btn-outline-bps:hover:not(:disabled) {
+  background-color: #f5f9fc;
+  border-color: #012758;
+  color: #012758;
+}
+
+.btn-subtle-bps {
+  background-color: #e8f1fa;
+  color: #19558a;
+  transition: all 0.15s ease-in-out;
+}
+.btn-subtle-bps:hover:not(:disabled) {
+  background-color: #d5e0eb;
+  color: #012758;
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  @page {
+    size: auto;
+    margin: 4mm;
+  }
+
+  .pass-slip-print {
+    width: 3.9in !important;
+    max-width: 100mm !important;
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  .a4-batch-print {
+    width: 210mm !important;
+    page-break-after: always;
+  }
+}

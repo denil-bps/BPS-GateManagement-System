@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Student record in the BPS Golden Gate database",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "admissionNo": { "type": "string" },
+        "name": { "type": "string" },
+        "class": { "type": "string" },
+        "section": { "type": "string" },
+        "house": { "type": "string" },
+        "houseNo": { "type": "string" },
+        "qrId": { "type": "string" },
+        "status": { "type": "string", "enum": ["ON_CAMPUS", "OUTSIDE", "BLOCKED"] }
+      },
+      "required": ["id", "admissionNo", "name", "class", "section", "house", "houseNo", "qrId", "status"]
+    },
+    "StudentMovement": {
+      "title": "StudentMovement",
+      "description": "Movement transaction for student gate entry and exit",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sNo": { "type": "number" },
+        "gatePassNo": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "house": { "type": "string" },
+        "houseNo": { "type": "string" },
+        "dateTimeOut": { "type": "string" },
+        "dateTimeIn": { "type": "string" },
+        "movementType": { "type": "string" },
+        "status": { "type": "string", "enum": ["OUTSIDE", "COMPLETED"] }
+      },
+      "required": ["id", "sNo", "gatePassNo", "studentId", "studentName", "dateTimeOut", "movementType", "status"]
+    },
+    "VisitorGroup": {
+      "title": "VisitorGroup",
+      "description": "Visitor party at the Golden Gate",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "passNumber": { "type": "string" },
+        "headVisitorName": { "type": "string" },
+        "totalVisitors": { "type": "number" },
+        "dateTimeIn": { "type": "string" },
+        "whomToMeet": { "type": "string" },
+        "status": { "type": "string", "enum": ["ON_CAMPUS", "CHECKED_OUT"] }
+      },
+      "required": ["id", "passNumber", "headVisitorName", "dateTimeIn", "status"]
+    }
+  }
+}

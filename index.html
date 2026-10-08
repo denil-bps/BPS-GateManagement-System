@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BPS GateFlow - Golden Gate Birla Public School Pilani</title>
+    <meta name="description" content="Comprehensive gate management system for the Golden Gate of Birla Public School, Pilani digitizing student gate passes and visitor logs with dual-display live sync." />
+    <meta property="og:title" content="BPS GateFlow - Golden Gate Birla Public School Pilani" />
+    <meta property="og:description" content="Comprehensive gate management system for the Golden Gate of Birla Public School, Pilani digitizing student gate passes and visitor logs with dual-display live sync." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Gracefully handle Vite HMR WebSocket in environment where HMR is disabled
+      (function() {
+        if (typeof window === 'undefined') return;
+        var RealWebSocket = window.WebSocket;
+        if (RealWebSocket) {
+          window.WebSocket = function(url, protocols) {
+            var isHmr = protocols === 'vite-hmr' || protocols === 'vite-ping' ||
+              (Array.isArray(protocols) && (protocols.indexOf('vite-hmr') !== -1 || protocols.indexOf('vite-ping') !== -1));
+            if (isHmr) {
+              var emitter = new EventTarget();
+              var fakeSocket = {
+                readyState: 1,
+                OPEN: 1,
+                CLOSED: 3,
+                CLOSING: 2,
+                CONNECTING: 0,
+                url: url,
+                protocol: 'vite-hmr',
+                extensions: '',
+                bufferedAmount: 0,
+                binaryType: 'blob',
+                onopen: null,
+                onclose: null,
+                onerror: null,
+                onmessage: null,
+                send: function() {},
+                close: function() {},
+                addEventListener: emitter.addEventListener.bind(emitter),
+                removeEventListener: emitter.removeEventListener.bind(emitter),
+                dispatchEvent: emitter.dispatchEvent.bind(emitter)
+              };
+              setTimeout(function() {
+                var ev = new Event('open');
+                emitter.dispatchEvent(ev);
+                if (fakeSocket.onopen) fakeSocket.onopen(ev);
+              }, 0);
+              return fakeSocket;
+            }
+            return new RealWebSocket(url, protocols);
+          };
+          window.WebSocket.prototype = RealWebSocket.prototype;
+          window.WebSocket.CONNECTING = 0;
+          window.WebSocket.OPEN = 1;
+          window.WebSocket.CLOSING = 2;
+          window.WebSocket.CLOSED = 3;
+        }
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var msg = event && event.reason ? String(event.reason.message || event.reason) : '';
+          if (msg.indexOf('WebSocket') !== -1 || msg.indexOf('@vite/client') !== -1) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        }, true);
+
+        window.addEventListener('error', function(event) {
+          var msg = event && event.message ? String(event.message) : '';
+          var fn = event && event.filename ? String(event.filename) : '';
+          if (msg.indexOf('WebSocket') !== -1 || fn.indexOf('@vite/client') !== -1) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        }, true);
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#f5f9fc] text-[#173a5f] antialiased font-sans selection:bg-[#fda31b]/20 selection:text-[#012758] min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "BPS GateFlow - Golden Gate Birla Public School Pilani",
+  "description": "Comprehensive gate management system for the Golden Gate of Birla Public School, Pilani digitizing student gate passes and visitor logs with dual-display live sync.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
