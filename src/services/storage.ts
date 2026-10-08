@@ -346,16 +346,65 @@ export const StorageService = {
     if (!rawCode || typeof rawCode !== 'string') {
       return { type: 'UNKNOWN' };
     }
-    const clean = rawCode.trim();
+    let clean = rawCode.trim();
+
+    // 1. Try parsing JSON format payload (common in digital identity cards)
+    if (clean.startsWith('{') && clean.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(clean);
+        const candidate =
+          parsed.gatePassNo ||
+          parsed.passNumber ||
+          parsed.admissionNo ||
+          parsed.houseNo ||
+          parsed.studentId ||
+          parsed.qrId ||
+          parsed.code ||
+          parsed.id;
+        if (candidate && typeof candidate === 'string') {
+          clean = candidate.trim();
+        }
+      } catch {
+        // keep clean as is
+      }
+    }
+
+    // 2. Extract from URL query parameter or path if scanned from digital link
+    if (clean.includes('://')) {
+      try {
+        const urlObj = new URL(clean);
+        const codeParam =
+          urlObj.searchParams.get('code') ||
+          urlObj.searchParams.get('pass') ||
+          urlObj.searchParams.get('id') ||
+          urlObj.searchParams.get('gatePass') ||
+          urlObj.searchParams.get('qr');
+        if (codeParam) {
+          clean = codeParam.trim();
+        } else {
+          const segments = urlObj.pathname.split('/').filter(Boolean);
+          if (segments.length > 0) {
+            clean = segments[segments.length - 1];
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    const upper = clean.toUpperCase();
 
     // A. Check for Visitor Pass (BPS-VIS-{passNo} or VP-{1000+})
-    if (clean.toUpperCase().startsWith('BPS-VIS-') || clean.toUpperCase().startsWith('VP-')) {
-      const passNo = clean.toUpperCase().startsWith('BPS-VIS-')
+    if (upper.startsWith('BPS-VIS-') || upper.startsWith('VP-')) {
+      const passNo = upper.startsWith('BPS-VIS-')
         ? clean.substring(8).trim()
         : clean.trim();
       const visitors = this.getVisitors();
       const visitor = visitors.find(
-        (v) => v.passNumber.toLowerCase() === passNo.toLowerCase() || v.id.toLowerCase() === passNo.toLowerCase()
+        (v) =>
+          v.passNumber.toLowerCase() === passNo.toLowerCase() ||
+          v.id.toLowerCase() === passNo.toLowerCase() ||
+          v.passNumber.toLowerCase().includes(passNo.toLowerCase())
       );
       if (visitor) {
         return { type: 'VISITOR_PASS', visitor };
@@ -363,16 +412,18 @@ export const StorageService = {
     }
 
     // B. Check for Student Gate Pass (BPS-MOV-{gatePassNo}-{studentId} or GP-...)
-    if (clean.toUpperCase().startsWith('BPS-MOV-') || clean.toUpperCase().startsWith('GP-')) {
+    if (upper.startsWith('BPS-MOV-') || upper.startsWith('GP-')) {
       const movements = this.getMovements();
       let matchedMov: StudentMovement | undefined;
 
-      if (clean.toUpperCase().startsWith('BPS-MOV-')) {
+      if (upper.startsWith('BPS-MOV-')) {
         const withoutPrefix = clean.substring(8);
-        matchedMov = movements.find((m) => withoutPrefix.includes(m.gatePassNo));
+        matchedMov = movements.find((m) => withoutPrefix.toLowerCase().includes(m.gatePassNo.toLowerCase()));
       } else {
         matchedMov = movements.find(
-          (m) => m.gatePassNo.toLowerCase() === clean.toLowerCase()
+          (m) =>
+            m.gatePassNo.toLowerCase() === clean.toLowerCase() ||
+            clean.toLowerCase().includes(m.gatePassNo.toLowerCase())
         );
       }
 
@@ -384,20 +435,64 @@ export const StorageService = {
       }
     }
 
-    // C. Check for Student ID Card
+    // C. Check for direct Student ID Card
     const student = this.getStudentById(clean);
     if (student) {
       const activeMovement = this.getActiveMovementForStudent(student.id);
       return { type: 'STUDENT', student, movement: activeMovement };
     }
 
-    // D. Check if it's a visitor pass without prefix
+    // D. Substring search for active gate pass code (e.g. string contains "GP-12345")
+    const gpMatch = clean.match(/GP-\d+/i);
+    if (gpMatch) {
+      const matchedCode = gpMatch[0];
+      const movements = this.getMovements();
+      const matchedMov = movements.find(
+        (m) => m.gatePassNo.toLowerCase() === matchedCode.toLowerCase()
+      );
+      if (matchedMov) {
+        const s = this.getStudentById(matchedMov.studentId);
+        if (s) {
+          return { type: 'STUDENT_PASS', student: s, movement: matchedMov };
+        }
+      }
+    }
+
+    // E. Substring search for visitor pass code (e.g. string contains "VP-1234")
+    const vpMatch = clean.match(/VP-\d+/i);
+    if (vpMatch) {
+      const matchedCode = vpMatch[0];
+      const allVisitors = this.getVisitors();
+      const vis = allVisitors.find(
+        (v) => v.passNumber.toLowerCase() === matchedCode.toLowerCase()
+      );
+      if (vis) {
+        return { type: 'VISITOR_PASS', visitor: vis };
+      }
+    }
+
+    // F. Check if it's a visitor pass without prefix
     const allVisitors = this.getVisitors();
     const vis = allVisitors.find(
-      (v) => v.passNumber.toLowerCase() === clean.toLowerCase() || v.id.toLowerCase() === clean.toLowerCase()
+      (v) =>
+        v.passNumber.toLowerCase() === clean.toLowerCase() ||
+        v.id.toLowerCase() === clean.toLowerCase()
     );
     if (vis) {
       return { type: 'VISITOR_PASS', visitor: vis };
+    }
+
+    // G. Fuzzy fallback: check if any student's admission number or house number is contained in the text
+    const allStudents = this.getStudents();
+    for (const s of allStudents) {
+      if (
+        (s.admissionNo && clean.toLowerCase().includes(s.admissionNo.toLowerCase())) ||
+        (s.houseNo && clean.toLowerCase().includes(s.houseNo.toLowerCase())) ||
+        (s.qrId && clean.toLowerCase().includes(s.qrId.toLowerCase()))
+      ) {
+        const activeMovement = this.getActiveMovementForStudent(s.id);
+        return { type: 'STUDENT', student: s, movement: activeMovement };
+      }
     }
 
     return { type: 'UNKNOWN' };

@@ -75,6 +75,7 @@ export default function App() {
   const [isEmailPromptOpen, setIsEmailPromptOpen] = useState<boolean>(false);
   const [emailPromptMovement, setEmailPromptMovement] = useState<StudentMovement | null>(null);
   const [emailPromptStudent, setEmailPromptStudent] = useState<Student | null>(null);
+  const [scanErrorToast, setScanErrorToast] = useState<string | null>(null);
 
   // Function to refresh state from storage
   const refreshAllData = useCallback(() => {
@@ -204,7 +205,37 @@ export default function App() {
         },
       });
     } else {
-      alert(`No student record or gate pass found matching code: "${qrOrAdmission}". Verify the number or add student in Admin.`);
+      // Last-mile fallback: check students array directly
+      const cleanUpper = qrOrAdmission.toUpperCase().trim();
+      const fallbackStudent = students.find(
+        (s) =>
+          s.admissionNo.toUpperCase().includes(cleanUpper) ||
+          s.name.toUpperCase().includes(cleanUpper) ||
+          s.houseNo.toUpperCase().includes(cleanUpper) ||
+          s.id.toUpperCase().includes(cleanUpper)
+      );
+
+      if (fallbackStudent) {
+        StorageService.broadcastPublicDisplay({
+          mode: 'STUDENT_SCANNED',
+          timestamp: Date.now(),
+          student: {
+            name: fallbackStudent.name,
+            house: fallbackStudent.house,
+            class: fallbackStudent.class,
+            section: fallbackStudent.section,
+            houseNo: fallbackStudent.houseNo,
+            photo: fallbackStudent.photo,
+          },
+        });
+        setSelectedStudentForProcess(fallbackStudent);
+        setActiveMovementForProcess(StorageService.getActiveMovementForStudent(fallbackStudent.id) || null);
+        setIsStudentModalOpen(true);
+        return;
+      }
+
+      setScanErrorToast(`No student or pass found matching code: "${qrOrAdmission}".`);
+      setTimeout(() => setScanErrorToast(null), 5000);
     }
   };
 
@@ -611,6 +642,21 @@ export default function App() {
           setIsPrintModalOpen(true);
         }}
       />
+
+      {/* Non-blocking Toast Notification for Scanner */}
+      {scanErrorToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-amber-500/50 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+          <p className="text-xs sm:text-sm font-medium text-slate-100">{scanErrorToast}</p>
+          <button
+            type="button"
+            onClick={() => setScanErrorToast(null)}
+            className="text-slate-400 hover:text-white p-1 ml-2 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
     </div>
   );
